@@ -11,7 +11,7 @@ def handle_client(client_socket):
     request = client_socket.recv(1024).decode('utf-8')
     print(f"Recebido: {request}")
 
-    # Processar a requisição HTTP simulada
+    # Processar a requisição HTTP
     if request.startswith("POST /sensor/reading"):
         process_sensor_reading(request)
         response = "HTTP/1.1 200 OK\r -Leitura recebida."
@@ -32,7 +32,7 @@ def handle_client(client_socket):
 def process_sensor_reading(request):
     global leituras, atuadores
 
-    # Extrair dados da requisição simulada
+    # Extrair dados da requisição
     lines = request.splitlines()
     sensor_data = lines[-1].split('&')
     sensor_id = sensor_data[0].split('=')[1]
@@ -60,7 +60,7 @@ def process_sensor_reading(request):
 
 def process_actuator_control(request):
     global atuadores, leituras
-    # Extrair dados da requisição simulada
+    # Extrair dados da requisição
     lines = request.splitlines()
     actuator_data = lines[-1].split('&')
     actuator_id = actuator_data[0].split('=')[1]
@@ -79,6 +79,7 @@ def start_server():
     print("Servidor iniciado na porta 8080.")
 
     while True:
+        #A cada conexao com Cliente cria uma Thread
         client_socket, addr = server.accept()
         print(f"Conexão aceita de {addr}.")
         client_handler = threading.Thread(target=handle_client, args=(client_socket,))
