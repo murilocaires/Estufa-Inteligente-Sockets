@@ -5,6 +5,14 @@ import threading
 leituras = {"temperatura": 0, "umidade": 0, "co2": 0}
 atuadores = {"aquecedor": False, "resfriador": False, "irrigacao": False, "co2_injetor": False}
 
+# Dicionário para mapear sensores a portas
+sensor_ports = {
+    "aquecedor": 8081,
+    "resfriador": 8081,
+    "irrigacao": 8082,
+    "co2_injetor": 8083
+}
+
 def handle_client(client_socket):
     request = client_socket.recv(1024).decode('utf-8')
     print(f"Recebido: {request}")
@@ -34,18 +42,8 @@ def process_sensor_reading(request):
     sensor_data = lines[-1].split('&')
     sensor_id = sensor_data[0].split('=')[1]
     leitura = float(sensor_data[1].split('=')[1])
-    leituras[sensor_id] = leitura
 
-    # Atualiza leituras baseado nos atuadores
-    if atuadores["aquecedor"] and sensor_id == "temperatura":
-        leitura += 5
-    if atuadores["resfriador"] and sensor_id == "temperatura":
-        leitura -= 5
-    if sensor_id == "umidade" and atuadores["irrigacao"]:
-        leitura += 20
-    if sensor_id == "co2" and atuadores["co2_injetor"]:
-        leitura += 3.5
-
+    # Armazenar leitura atualizada
     leituras[sensor_id] = leitura
     print(f"Sensor {sensor_id} atualizado para {leitura}.")
 
@@ -60,14 +58,25 @@ def process_actuator_control(request):
     atuadores[actuator_id] = action
     print(f"Atuador {actuator_id} {'ligado' if action else 'desligado'}.")
 
+    # Enviar comando ao sensor
+    if actuator_id in atuadores:
+        command = f"{actuator_id.upper()}_{'LIGAR' if action else 'DESLIGAR'}"
+        avisar_sensor(command, sensor_ports[actuator_id])  # Usar a porta correspondente
+
+def avisar_sensor(message, porta):
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect(("localhost", porta))
+
+    client.send(message.encode('utf-8'))
+    client.close()
+
 def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(("0.0.0.0", 8080))
+    server.bind(("0.0.0.0", 8080))  # Porta do servidor
     server.listen(5)
     print("Servidor iniciado na porta 8080.")
 
     while True:
-        # A cada conexão com Cliente cria uma Thread
         client_socket, addr = server.accept()
         print(f"Conexão aceita de {addr}.")
         client_handler = threading.Thread(target=handle_client, args=(client_socket,))

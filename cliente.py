@@ -37,16 +37,45 @@ def ver_atuadores():
     )
     enviar_requisicao(request)
 
+# Função para controlar os atuadores
+def controlar_atuador(atuador_id, acao):
+    # Valida o atuador e a ação
+    valid_atuadores = ["aquecedor", "resfriador", "irrigacao", "co2_injetor"]
+    if atuador_id not in valid_atuadores:
+        print(f"Atuador '{atuador_id}' inválido!")
+        return
+
+    if acao not in [True, False]:
+        print("Ação inválida!")
+        return
+
+    print("\n------\n")
+    body = f"id={atuador_id}&action={str(acao).lower()}"  # Converte ação para string minúscula
+    request = (
+        f"POST /actuator/control HTTP/1.1\r\n"
+        f"Host: localhost\r\n"
+        f"Content-Type: application/x-www-form-urlencoded\r\n"
+        f"Content-Length: {len(body)}\r\n"
+        f"\r\n"
+        f"{body}"
+    )
+    enviar_requisicao(request)
+
 # Função principal com menu interativo
 if __name__ == '__main__':
     while True:
-        print("\n1. Ver sensores\n2. Ver atuadores\n3. Sair")
+        print("\n1. Ver sensores\n2. Ver atuadores\n3. Controlar atuador\n4. Sair")
         opcao = input("Escolha uma opção: ")
         if opcao == "1":
             ver_sensores()
         elif opcao == "2":
             ver_atuadores()
         elif opcao == "3":
+            atuador = input("Digite o atuador (aquecedor, resfriador, irrigacao, co2_injetor): ")
+            acao_input = input("Digite 'on' para ligar ou 'off' para desligar: ").lower()
+            acao = acao_input == 'on'
+            controlar_atuador(atuador, acao)
+        elif opcao == "4":
             break
         else:
             print("Opção inválida!")
