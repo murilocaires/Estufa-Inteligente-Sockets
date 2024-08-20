@@ -7,8 +7,21 @@ leitura = 22
 def enviar_leitura():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(("localhost", 8080))
-    request = f"POST /sensor/reading HTTP/1.1\r\nHost: localhost\r\n\r\nid={sensor_id}&leitura={leitura}"
-    print("Server request: " +request)
+
+    # Preparar o corpo da requisição
+    body = f"id={sensor_id}&leitura={leitura}"
+
+    # Construir a requisição com os novos cabeçalhos
+    request = (
+        f"POST /sensor/reading HTTP/1.1\r\n"
+        f"Host: localhost\r\n"
+        f"Content-Type: application/x-www-form-urlencoded\r\n"
+        f"Content-Length: {len(body)}\r\n"
+        f"\r\n"
+        f"{body}"
+    )
+
+    print("Server request: " + request)
     client.send(request.encode('utf-8'))
     response = client.recv(4096).decode('utf-8')
     print(response)
