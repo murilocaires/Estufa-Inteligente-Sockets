@@ -47,30 +47,34 @@ O Gerenciador mantém as leituras dos sensores dentro de valores máximos e mín
 - O Cliente pode requisitar a última leitura de qualquer sensor ao Gerenciador. Ele monitora os sensores e os atuadores ligados. 
 
 
-## Cabeçalho da requisições (IPv4 TCP) HTTP
+## Cabeçalho da requisições (IPv4 TCP) EIP
 
 #### Sensores: enviar_sensores
-        f"POST /sensor/reading HTTP/1.1\r\n"
-        f"Host: localhost\r\n"
-        f"Content-Type: application/x-www-form-urlencoded\r\n"
-        f"Content-Length: {len(body)}\r\n"
-        f"\r\n"
-        f"{body}"
+        POST /sensor/reading EIP/1.0 
+        Cliente-IP: 127.0.0.1 
+        Cliente-Porta: 54163 
+        Servidor: localhost 
+        Servidor-Porta: 8080 
+        Codificado: utf-8 
+        Tamanho: 137 bytes 
+        id=umidade&leitura=5
 #### Cliente: ver_sensores / ver_atuadores
-        "GET /sensors HTTP/1.1\r\n"      /        "GET /atuators HTTP/1.1\r\n"     
-        "Host: localhost\r\n"                
-        "User-Agent: CustomClient/1.0\r\n"  
-        "Accept: */*\r\n"                    
-        "Connection: keep-alive\r\n"         
-        "Accept-Encoding: gzip, deflate\r\n" 
-        "\r\n" 
-#### Atuadores: resfriador / irrigacao / co2_injetor aquecedor
-        f"POST /actuator/control HTTP/1.1\r\n"
-        f"Host: localhost\r\n"
-        f"Content-Type: application/x-www-form-urlencoded\r\n"
-        f"Content-Length: {len(body)}\r\n"
-        f"\r\n"
-        f"{body}"
+        GET /sensors EIP/1.1 GET /atuadores EIP/1.1
+        Cliente-IP: 127.0.0.1
+        Cliente-Porta: 51735
+        Servidor: localhost
+        Servidor-Porta: 8080
+        Codificado: utf-8
+        Tamanho: 130 byts
+#### Atuadores: resfriador / irrigacao / co2_injetor / aquecedor
+        POST /actuator/control EIP/1.0
+        Cliente-IP: 127.0.0.1
+        Cliente-Porta: 51850
+        Servidor: localhost
+        Servidor-Porta: 8080
+        Codificado: utf-8
+        Tamanho: 139 byts
+        id=irrigacao&action=true
 ## Instalação
 
 1. Clone o repositório:
